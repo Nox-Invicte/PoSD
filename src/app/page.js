@@ -30,7 +30,11 @@ function JourneyScene({ material, facility, beat, playing, seek, onBeatChange })
 
   useEffect(() => {
     positionRef.current = seek;
-  }, [seek]);
+    if (!playing && packageRef.current) {
+      packageRef.current.style.offsetDistance = `${seek * 100}%`;
+      packageRef.current.style.opacity = "1";
+    }
+  }, [playing, seek]);
 
   useEffect(() => {
     if (!playing || !packageRef.current) return undefined;
@@ -125,11 +129,12 @@ function Metric({ label, value, tone = "green" }) {
 }
 
 function ScenarioChart({ selected, recovery }) {
+  const rejectionRisk = 100 - recovery;
   const values = [
     { label: "Production", value: selected.production === "Lower" ? 34 : 72, color: "chart-orange" },
     { label: "Transport", value: selected.transport === "Lower" ? 28 : 76, color: "chart-blue" },
     { label: "Recovered", value: recovery, color: "chart-green" },
-    { label: "Rejected", value: selected.rejected, color: "chart-red" },
+    { label: "Rejected", value: rejectionRisk, color: "chart-red" },
   ];
   return <div className="chart-panel"><div className="chart-heading"><span>Scenario profile</span><small>hypothetical index</small></div><div className="chart-bars">{values.map((item) => <div className="chart-bar" key={item.label}><div className="chart-bar-value">{item.value}</div><div className={`chart-bar-fill ${item.color}`} style={{ height: `${item.value}%` }} /><span>{item.label}</span></div>)}</div><div className="chart-axis"><span>0</span><span>50</span><span>100</span></div></div>;
 }
@@ -146,15 +151,10 @@ export default function Home() {
   const selected = materials[materialKey];
   const selectedFacility = facilities[facilityKey];
   const recovery = facilityKey === "existing" ? selected.existing : selected.added;
+  const rejectionRisk = 100 - recovery;
   const compatible = materialKey === "glass" || facilityKey === "added";
   const capturedMaterial = captured ? materials[captured.material] ?? materials.flex : null;
   const capturedFacility = captured ? facilities[captured.facility] ?? facilities.existing : null;
-
-  useEffect(() => {
-    if (!playing) return undefined;
-    const timer = setInterval(() => setBeat((current) => (current + 1) % beats.length), 4300);
-    return () => clearInterval(timer);
-  }, [playing]);
 
   function reset() {
     setMaterial("flex"); setFacility("existing"); setBeat(0); setSeek(0); setPlaying(true); setCaptured(null);
@@ -180,13 +180,13 @@ export default function Home() {
       <section className="hero"><div className="eyebrow">The economics / infrastructure gap</div><h1>Every package has<br /><span>a second story.</span></h1><p>Choose a material. Watch it move through the system. See where design decisions meet municipal reality.</p></section>
 
       <section className="workbench">
-        <div className="scenario-bar"><div className="scenario-title"><span className="eyebrow">Your scenario</span><strong>{selected.label}</strong></div><div className="segmented"><span className="segment-label">Material</span>{Object.entries(materials).map(([key, item]) => <button key={key} className={materialKey === key ? "selected" : ""} onClick={() => setMaterial(key)}><i className={`material-swatch material-${key}`} style={{ "--material-color": item.color }} />{item.short}</button>)}</div><div className="segmented"><span className="segment-label">Facility</span>{Object.entries(facilities).map(([key, item]) => <button key={key} className={facilityKey === key ? "selected" : ""} onClick={() => setFacility(key)}><i className={`facility-swatch facility-${key}`} />{key === "existing" ? "Existing" : "Invest"}</button>)}</div></div>
+        <div className="scenario-bar"><div className="scenario-title"><span className="eyebrow">Your scenario</span><strong>{selected.label}</strong></div><div className="segmented" role="group" aria-label="Choose material"><span className="segment-label">Material</span>{Object.entries(materials).map(([key, item]) => <button key={key} type="button" aria-pressed={materialKey === key} className={materialKey === key ? "selected" : ""} onClick={() => setMaterial(key)}><i className={`material-swatch material-${key}`} style={{ "--material-color": item.color }} />{item.short}</button>)}</div><div className="segmented" role="group" aria-label="Choose facility capability"><span className="segment-label">Facility</span>{Object.entries(facilities).map(([key, item]) => <button key={key} type="button" aria-pressed={facilityKey === key} className={facilityKey === key ? "selected" : ""} onClick={() => setFacility(key)}><i className={`facility-swatch facility-${key}`} />{key === "existing" ? "Existing" : "Invest"}</button>)}</div></div>
 
         <div className="journey-header"><div><span className="eyebrow">Live material journey</span><h2 key={beats[beat].label}>{beats[beat].title}</h2></div><button className={`play-button ${playing ? "active" : ""}`} onClick={() => setPlaying((value) => !value)} aria-label={playing ? "Pause animation" : "Play animation"}>{playing ? "Ⅱ" : "▶"}<span>{playing ? "Pause" : "Play"}</span></button></div>
-        <div className="progress-track">{beats.map((item, index) => <button key={item.label} className={index === beat ? "active" : index < beat ? "complete" : ""} onClick={() => selectBeat(index)}><span>{String(index + 1).padStart(2, "0")}</span>{item.label}</button>)}</div>
+        <div className="progress-track" aria-label="Journey stages">{beats.map((item, index) => <button type="button" key={item.label} aria-current={index === beat ? "step" : undefined} className={index === beat ? "active" : index < beat ? "complete" : ""} onClick={() => selectBeat(index)}><span>{String(index + 1).padStart(2, "0")}</span>{item.label}</button>)}</div>
         <JourneyScene material={materialKey} facility={facilityKey} beat={beat} playing={playing} seek={seek} onBeatChange={handleBeatChange} />
 
-        <div className="readout"><div className="readout-intro"><span className="eyebrow">What is happening</span><p>{beat === 0 ? selected.description : beat === 1 ? "Lower production or transport burden can make a format attractive before it ever reaches a bin." : beat === 2 ? `${selectedFacility.label} receives the package. Compatibility depends on collection, sorting, separation, and operating choices.` : compatible ? "This illustrative pathway shows a stronger chance of material recovery when the facility matches the material." : "This illustrative pathway shows rejection and landfill dependency when the existing line cannot process the material."}</p></div><div className="readout-data"><ScenarioChart selected={selected} recovery={recovery} /><div className="metric-grid"><Metric label="Production cost" value={selected.production} tone={selected.production === "Lower" ? "green" : "orange"} /><Metric label="Transport burden" value={selected.transport} tone={selected.transport === "Lower" ? "green" : "orange"} /><Metric label="Recovered" value={`${recovery}%`} /><Metric label="Rejected risk" value={`${selected.rejected}%`} tone="orange" /></div></div></div>
+        <div className="readout"><div className="readout-intro"><span className="eyebrow">What is happening</span><p>{beat === 0 ? selected.description : beat === 1 ? "Lower production or transport burden can make a format attractive before it ever reaches a bin." : beat === 2 ? `${selectedFacility.label} receives the package. Compatibility depends on collection, sorting, separation, and operating choices.` : compatible ? "This illustrative pathway shows a stronger chance of material recovery when the facility matches the material." : "This illustrative pathway shows rejection and landfill dependency when the existing line cannot process the material."}</p></div><div className="readout-data"><ScenarioChart selected={selected} recovery={recovery} /><div className="metric-grid"><Metric label="Production cost" value={selected.production} tone={selected.production === "Lower" ? "green" : "orange"} /><Metric label="Transport burden" value={selected.transport} tone={selected.transport === "Lower" ? "green" : "orange"} /><Metric label="Recovered" value={`${recovery}%`} /><Metric label="Rejected risk" value={`${rejectionRisk}%`} tone="orange" /></div></div></div>
       </section>
 
       <section className="comparison"><div className="comparison-copy"><span className="eyebrow">Make the gap visible</span><h2>Same package.<br /><span>Different system.</span></h2><p>Capture the current case, then switch the facility to see how suitable capability changes the hypothetical outcome.</p><button className="capture-button" onClick={capture}>{captured ? "Scenario captured" : "Capture this scenario"}<span>↗</span></button></div><div className="comparison-card"><div className="comparison-card-head"><span>Hypothetical pathway</span><span>Original / improved</span></div><div className="comparison-row"><span>Material</span><strong>{capturedMaterial ? capturedMaterial.short : "Choose + capture"}</strong><strong>{capturedMaterial ? capturedMaterial.short : "—"}</strong></div><div className="comparison-row"><span>Facility</span><strong>{capturedFacility ? capturedFacility.label : "—"}</strong><strong>{captured ? facilities.added.label : "—"}</strong></div><div className="comparison-row highlight"><span>Recovery</span><strong>{capturedMaterial && capturedFacility ? `${capturedFacility === facilities.existing ? capturedMaterial.existing : capturedMaterial.added}%` : "—"}</strong><strong>{capturedMaterial ? `${capturedMaterial.added}%` : "—"}</strong></div>{captured && <small>Improvement is illustrative. Actual results depend on local collection, technology, costs, and composition.</small>}</div></section>

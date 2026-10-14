@@ -1012,3 +1012,57 @@ body { background: var(--bg); }
 .discipline-list span { border-color: var(--line); color: var(--muted); }
 footer { border-color: var(--line); color: var(--dim); }
 @keyframes pulseFlat { 50% { opacity: .5; transform: scale(.78); transform-origin: center; } }
+
+/* Clearer type scale, stronger control states, and a more deliberate workspace. */
+.topbar,
+.hero,
+.workbench,
+.comparison,
+.closing,
+footer { max-width: 1120px; }
+.hero { padding-top: 82px; padding-bottom: 58px; }
+.eyebrow { font-size: 10px; letter-spacing: .13em; }
+.topbar-tag, .comparison-card-head, footer > span { font-size: 10px; }
+.workbench { border-radius: 18px; overflow: hidden; }
+.scenario-bar { padding: 22px 26px; }
+.scenario-title strong { font-size: 15px; }
+.segmented { gap: 5px; }
+.segmented button { min-height: 42px; padding: 0 14px; border-radius: 9px; }
+.segmented button:focus-visible,
+.progress-track button:focus-visible,
+.play-button:focus-visible,
+.reset-button:focus-visible,
+.capture-button:focus-visible { outline: 3px solid #df7845; outline-offset: 3px; }
+.journey-header { padding: 28px 28px 18px; }
+.journey-header h2 { font-size: clamp(23px, 3vw, 32px); }
+.progress-track { margin-right: 28px; margin-left: 28px; }
+.progress-track button { font-size: 10px; }
+.journey-scene { border-radius: 14px; }
+.scene-label { font-size: 13px; }
+.scene-small { font-size: 10px; }
+.diagram-cards text { font-size: 9px; }
+.scene-status { font-size: 10px; }
+.readout { padding: 28px; }
+.readout-intro p, .comparison-copy p { font-size: 13px; }
+.chart-heading span { font-size: 10px; }
+.chart-heading small, .metric span, .metric strong { font-size: 10px; }
+.comparison { padding-top: 100px; padding-bottom: 100px; }
+.comparison h2 { font-size: clamp(38px, 5vw, 52px); }
+.comparison-card { border-radius: 14px; overflow: hidden; }
+.comparison-card-head, .comparison-row { padding: 17px 20px; }
+.comparison-row { font-size: 11px; }
+.comparison-card small { font-size: 10px; }
+button { transition: color .18s ease, background-color .18s ease, border-color .18s ease, transform .18s ease; }
+.segmented button:hover { transform: translateY(-1px); }
+.capture-button { border-radius: 8px; }
+@media (max-width: 620px) {
+  .hero { padding-top: 60px; }
+  .scenario-bar { padding: 18px 16px; }
+  .journey-header { padding: 24px 18px 16px; }
+  .progress-track { margin-right: 18px; margin-left: 18px; }
+  .readout { padding: 22px 18px; }
+  .journey-scene svg { min-height: 260px; }
+  .scene-label { font-size: 16px; }
+  .scene-small { font-size: 12px; }
+  .scene-status { font-size: 9px; }
+}
