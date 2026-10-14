@@ -136,7 +136,7 @@ function ScenarioChart({ selected, recovery }) {
     { label: "Recovered", value: recovery, color: "chart-green" },
     { label: "Rejected", value: rejectionRisk, color: "chart-red" },
   ];
-  return <div className="chart-panel"><div className="chart-heading"><span>Scenario profile</span><small>hypothetical index</small></div><div className="chart-bars">{values.map((item) => <div className="chart-bar" key={item.label}><div className="chart-bar-value">{item.value}</div><div className={`chart-bar-fill ${item.color}`} style={{ height: `${item.value}%` }} /><span>{item.label}</span></div>)}</div><div className="chart-axis"><span>0</span><span>50</span><span>100</span></div></div>;
+  return <div className="chart-panel"><div className="chart-heading"><span>Scenario profile</span><small>illustrative scores · 0–100</small></div><div className="chart-bars">{values.map((item) => <div className="chart-bar" key={item.label}><div className="chart-bar-value">{item.value}</div><div className={`chart-bar-fill ${item.color}`} style={{ height: `${item.value}%` }} /><span>{item.label}</span></div>)}</div><div className="chart-axis" aria-hidden="true"><span>100</span><span>50</span><span>0</span></div><p className="chart-note"><strong>Recovered + rejected = 100%</strong> in this simplified pathway. Production and transport are separate burden scores; they are not parts of that total.</p></div>;
 }
 
 export default function Home() {

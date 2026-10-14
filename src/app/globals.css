@@ -1046,6 +1046,10 @@ footer { max-width: 1120px; }
 .readout-intro p, .comparison-copy p { font-size: 13px; }
 .chart-heading span { font-size: 10px; }
 .chart-heading small, .metric span, .metric strong { font-size: 10px; }
+.chart-panel { min-height: 212px; padding-bottom: 12px; }
+.chart-bars { margin-bottom: 14px; }
+.chart-note { margin: 2px 0 0; padding-top: 9px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; line-height: 1.5; }
+.chart-note strong { color: var(--green); font-weight: 700; }
 .comparison { padding-top: 100px; padding-bottom: 100px; }
 .comparison h2 { font-size: clamp(38px, 5vw, 52px); }
 .comparison-card { border-radius: 14px; overflow: hidden; }
